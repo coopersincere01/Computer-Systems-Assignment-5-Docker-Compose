@@ -1,0 +1,17 @@
+# Exclude local dependencies
+node_modules
+
+# Exclude previous production builds
+dist
+build
+
+# Exclude environment files
+.env
+.env.*
+
+# Exclude logs and temporary files
+npm-debug.log*
+*.log
+
+# Exclude Git metadata
+.git

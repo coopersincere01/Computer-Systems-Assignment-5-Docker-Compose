@@ -1,0 +1,28 @@
+# Docker Compose configuration for the Recipe Sharing Application
+version: '3.8'
+
+services:
+  # Backend Node.js API and SQLite database
+  backend:
+    build: ./backend
+    ports:
+      - "5000:5000"
+    environment:
+      - NODE_ENV=production
+      - PORT=5000
+    volumes:
+      - recipe_data:/app/data
+
+  # Frontend React application served by nginx
+  frontend:
+    build: ./frontend
+    ports:
+      - "3000:80"
+    depends_on:
+      - backend
+    environment:
+      - VITE_API_URL=http://localhost:5000
+
+# Named volume preserves SQLite data between container recreations
+volumes:
+  recipe_data:
