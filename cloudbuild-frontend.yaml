@@ -4,7 +4,7 @@ steps:
     args:
       - 'build'
       - '--build-arg'
-      - 'VITE_API_URL=YOUR_BACKEND_DEPLOYMENT_URL_HERE'
+      - 'VITE_API_URL=https://recipe-backend-946188775719.us-central1.run.app'
       - '-t'
       - 'us-central1-docker.pkg.dev/$PROJECT_ID/recipe-app/recipe-frontend'
       - './frontend'
