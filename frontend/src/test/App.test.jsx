@@ -124,3 +124,7 @@ describe('Recipe Sharing App - API Integration', () => {
     expect(result[0].title).toBe('Test Recipe')
   })
 })
+
+test('intentionally fails to verify CI/CD deployment protection', () => {
+  expect(1).toBe(2);
+});
