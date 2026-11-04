@@ -1,0 +1,80 @@
+name: Recipe Sharing CI/CD Pipeline
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+  id-token: write
+
+jobs:
+  test-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: npm
+          cache-dependency-path: |
+            backend/package-lock.json
+            frontend/package-lock.json
+
+      - name: Install backend dependencies
+        working-directory: backend
+        run: npm ci
+
+      - name: Run backend tests
+        working-directory: backend
+        run: npm test
+
+      - name: Install frontend dependencies
+        working-directory: frontend
+        run: npm ci
+
+      - name: Run frontend tests
+        working-directory: frontend
+        run: npm test
+
+      - name: Authenticate to Google Cloud
+        if: github.event_name == 'push'
+        uses: google-github-actions/auth@v3
+        with:
+          project_id: project-62e65ce8-94c3-4979-ab1
+          workload_identity_provider: projects/946188775719/locations/global/workloadIdentityPools/github-pool/providers/github-provider
+          service_account: github-actions-deployer@project-62e65ce8-94c3-4979-ab1.iam.gserviceaccount.com
+
+      - name: Set up Google Cloud CLI
+        if: github.event_name == 'push'
+        uses: google-github-actions/setup-gcloud@v3
+
+      - name: Build and deploy backend
+        if: github.event_name == 'push'
+        run: |
+          gcloud builds submit . \
+            --config=cloudbuild-backend.yaml \
+            --project=project-62e65ce8-94c3-4979-ab1
+
+      - name: Build and deploy frontend
+        if: github.event_name == 'push'
+        run: |
+          gcloud builds submit . \
+            --config=cloudbuild-frontend.yaml \
+            --project=project-62e65ce8-94c3-4979-ab1
+
+      - name: Display deployed URLs
+        if: github.event_name == 'push'
+        run: |
+          gcloud run services describe recipe-backend \
+            --region=us-central1 \
+            --format='value(status.url)'
+          gcloud run services describe recipe-frontend \
+            --region=us-central1 \
+            --format='value(status.url)'

@@ -1,0 +1,9 @@
+.gcloudignore
+.git/
+.gitignore
+#!include:.gitignore
+gha-creds-*.json
+**/node_modules/
+**/dist/
+backend/data/
+**/.env
